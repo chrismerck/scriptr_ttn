@@ -71,8 +71,10 @@ Message sent successfully!</code></pre>
 <h3 id="logging-into-the-gateway">Logging into the Gateway</h3>
 <p>Next, connect the Conduit to your PC using the provided USB micro-B cable. If you are running OSX or Linux, use the <code>dmesg</code> procedure given in the previous section for determining the serial port for communicating with the Conduit. Then open a serial console with the following console command on OSX or Linux PC:</p>
 <pre><code>screen /dev/ttyACM0 115200</code></pre>
-<p>Where you must replace <code>/dev/ttyACM0</code> with the serial port appropriate to your machine. The program <code>screen</code> is a simple serial terminal installed on most UNIX-like operating systems. You could use another serial terminal if you prefer, such as Hyperterminal on Windows systems. Upon connecting, you should be greeted with the following banner and login prompt: _ _<br /> _ __ ___ | | (<em>)</em> __ _ ___ <strong> | '_ ` _ | | | | '_ | | |  / / | | | | | | |</strong><em>| | | | | |</em>| |&gt; &lt; |<em>| |</em>| |<em>|</em>____|<em>|</em>| |<em>|_</em>,<em>/</em>/_<br /><br /> MultiTech Systems mLinux GNU/Linux mLinux 3.1.0 mtcdt /dev/ttyGS0</p>
-<pre><code>mtcdt login: </code></pre>
+<p>Where you must replace <code>/dev/ttyACM0</code> with the serial port appropriate to your machine. The program <code>screen</code> is a simple serial terminal installed on most UNIX-like operating systems. You could use another serial terminal if you prefer, such as Hyperterminal on Windows systems. Upon connecting, you should be greeted with the following banner and login prompt:</p>
+<div class="figure">
+<img src="mlinux_login.png" alt="mlinux login" /><p class="caption">mlinux login</p>
+</div>
 <p>Enter the default username <code>root</code> and password <code>root</code>. You should be dropped to a root bash shell:</p>
 <pre><code>root@mtcdt:~# </code></pre>
 <h3 id="check-firmware-version">Check Firmware Version</h3>

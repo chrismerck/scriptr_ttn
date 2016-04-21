@@ -101,16 +101,8 @@ Next, connect the Conduit to your PC using the provided USB micro-B cable. If yo
     screen /dev/ttyACM0 115200
 
 Where you must replace `/dev/ttyACM0` with the serial port appropriate to your machine. The program `screen` is a simple serial terminal installed on most UNIX-like operating systems. You could use another serial terminal if you prefer, such as Hyperterminal on Windows systems. Upon connecting, you should be greeted with the following banner and login prompt:
-                _     _                  
-      _ __ ___ | |   (_)_ __  _   ___  __
-     | '_ ` _ \| |   | | '_ \| | | \ \/ /
-     | | | | | | |___| | | | | |_| |>  < 
-     |_| |_| |_|_____|_|_| |_|\__,_/_/\_\
-                                         
-    MultiTech Systems mLinux GNU/Linux
-    mLinux 3.1.0 mtcdt /dev/ttyGS0
-    
-    mtcdt login: 
+        
+![mlinux login](mlinux_login.png)
 
 Enter the default username `root` and password `root`. You should be dropped to a root bash shell:
 
