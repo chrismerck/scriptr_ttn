@@ -1,8 +1,8 @@
 <h1 id="thethingsnetwork-meets-scriptr">TheThingsNetwork meets scriptr;</h1>
 <p>To realize the dream of the Internet of Things, we need an ubiquitous IoT data network. While smart dishwashers and smart garage doors can connect via a home's WiFi network, many IoT devices are out of range of existing wired or WiFi networks. Cellular and satellite networks have excellent coverage, but are costly in terms of airtime fees and power. The Internet of Things demands an outdoor, long-range, and low-power data network solution.</p>
-<p>Recent developments in <a href="https://www.lora-alliance.org/">LoRaWAN</a> radio technology allows low-power sensors to connect to distant gateways which then connect to a network server. Several competing commercial LoRaWAN providers now exist, and companies can build out there own networks of gateways. However, the proliferation of different LoRaWAN networks in the same geographical area is a waste of resources and may cause crowding of the radio spectrum. Furthermore, commercial LoRaWAN providers charge for access to their networks just as with cellular and satellite.</p>
-<p>The <a href="http://thethingsnetwork.org/">TheThingsNetwork</a> (TTN) is an open-source data network owned and operated by its users. Anyone is free to setup a gateway, and anyone is free to use those gateways at no charge. All source code for the network software is <a href="https://github.com/TheThingsNetwork">developed in the open on GitHub</a> to harness the strengths of developers world-wide. TTN is currently in 50+ cities and is growing rapidly through the efforts of local communities.</p>
-<p>In this tutorial, we will cover how to connect a device via TheThingsNetwork to Scriptr for analysis. We cover step-by-step how to connect a LoRa radio to a Raspberry Pi single-board computer. Also, as you may not have a gateway in range yet, we also cover configuring a gateway for TTN. We then show how with just a few lines of code, you can get ThingsNetwork data into Scriptr for analysis.</p>
+<p>Recent developments in <a href="https://www.lora-alliance.org/">LoRaWAN</a> radio technology allows low-power sensors to connect to distant internet gateways over free-to-use radio spectrum. Several competing commercial LoRaWAN providers now exist, or companies can build their own networks of gateways. However, the proliferation of different LoRaWAN networks in the same geographical area wastes resources and may cause crowding of the radio spectrum. Furthermore, commercial LoRaWAN providers charge for access to their networks just as with cellular and satellite.</p>
+<p>The <a href="http://thethingsnetwork.org/">TheThingsNetwork</a> (TTN) is an open-source data network owned and operated by its users built on top of LoRaWAN. Anyone is free to setup a gateway, and anyone may use those gateways at no charge. All source code for the network software is <a href="https://github.com/TheThingsNetwork">developed in the open on GitHub</a> to harness the strengths of developers world-wide. TTN is currently in 50+ cities and is growing rapidly through the efforts of local communities.</p>
+<p>In this tutorial, we will cover how to connect a device via TheThingsNetwork to Scriptr. We cover step-by-step how to connect a LoRa radio to a Raspberry Pi single-board computer. Also, as you may not have a gateway in range yet, we also cover gateway setup. We then show how with just a few lines of code, you can get TheThingsNetwork data into Scriptr.</p>
 <h2 id="overview">Overview</h2>
 <p>In this tutorial, we will use the following hardware:</p>
 <ul>
@@ -35,13 +35,13 @@ cd ttn_node_py</code></pre>
 <p>Now try running the <code>lora_mote_send.py</code> script with no arguments. You should get usage information:</p>
 <pre><code>python lora_mote_send.py</code></pre>
 <h3 id="attach-microchip-loramote">Attach Microchip LoRaMOTE</h3>
-<p>The Microchip LoRaMOTE is a development board for Microchip's RN2903 (or RN2483 in Europe) LoRaWAN tranceiver module. Many other development boards and tranceivers are available, however the RN2903 is one of the easiest to use. In addition to the RN2903 tranceiver, the LoRaMOTE has a built in PIC microcontroller, temperature and light sensors, AAA battery pack, and USB port. The LoRaMOTE comes with a USB cable and detachable antenna.</p>
+<p>The Microchip LoRaMOTE is a development board for Microchip's RN2903 (or RN2483 in Europe) LoRaWAN tranceiver module. Many other development boards and tranceivers are available, however the RN2903 is one of the easiest to use. In addition to the RN2903 tranceiver, the LoRaMOTE has a built in PIC microcontroller, temperature and light sensors, AAA battery pack, and USB port. In this tutorial we will not use the sensors, but simply pass data through from the Raspberry Pi to a gateway.</p>
 <div class="figure">
 <img src="lora_mote.jpg" alt="photo of loramote" /><p class="caption">photo of loramote</p>
 </div>
-<p>When you plug in the LoRaMOTE to the Raspberry Pi, Linux will create a serial port device in its file system for communicating with the Mote. To tell the name of that serial device, you will want to first clear the device message log by running the following command at the Raspberry Pi's bash prompt:</p>
+<p>When you plug in the LoRaMOTE to the Raspberry Pi, Raspbian Linux will create a serial port device in its file system for communicating with the Mote. To tell the name of that serial device, you will want to first clear the device message log by running the following command at the Raspberry Pi's bash prompt:</p>
 <pre><code>sudo dmesg -c</code></pre>
-<p>Next plug in the LoRaMOTE to the Pi using the provided USB mini-B cable. Now again run the <code>dmesg</code> command. You should see a number of messages in the console like this:</p>
+<p>Next, plug in the LoRaMOTE to the Pi using the provided USB mini-B cable. Now again run the <code>dmesg</code> command. You should see a number of messages in the console like this:</p>
 <pre><code>[198997.954943] usb 1-1.1: new full-speed USB device number 13 using xhci_hcd
 [198998.062393] usb 1-1.1: New USB device found, idVendor=04d8, idProduct=000a
 [198998.062406] usb 1-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
@@ -66,7 +66,7 @@ Message sent successfully!</code></pre>
 <li>Install the LoRa mCard into the Conduit's AP1 slot.</li>
 <li>Attach the 915MHz antenna to the LoRa mCard's RF port.</li>
 <li>Attach the cellular antenna to the Conduit's CELL port.</li>
-<li>Power the Conduit by pluggin in the provided AC-DC converter.</li>
+<li>Power the Conduit by plugging in the provided AC-DC converter.</li>
 </ol>
 <h3 id="logging-into-the-gateway">Logging into the Gateway</h3>
 <p>Next, connect the Conduit to your PC using the provided USB micro-B cable. If you are running OSX or Linux, use the <code>dmesg</code> procedure given in the previous section for determining the serial port for communicating with the Conduit. Then open a serial console with the following console command on OSX or Linux PC:</p>
@@ -180,10 +180,4 @@ mqtt_client.on(&#39;message&#39;, function (topic, message) {
 <li><a href="http://thethingsnetwork.org/wiki/">TheThingsNetwork WiKi</a></li>
 <li><a href="https://www.lora-alliance.org/Contact/Request-Specification-Form">LoRaWAN specification</a></li>
 <li><a href="http://mqtt.org/documentation">MQTT protocol specification</a></li>
-</ul>
-<h2 id="todo">TODO</h2>
-<ul>
-<li>update with proper Scriptr MQTT syntax available</li>
-<li>update based on Scriptr feedback</li>
-<li>move github repos to scriptrdotio rather than chrismerck account</li>
 </ul>

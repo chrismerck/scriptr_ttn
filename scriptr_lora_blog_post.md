@@ -2,11 +2,11 @@
 
 To realize the dream of the Internet of Things, we need an ubiquitous IoT data network. While smart dishwashers and smart garage doors can connect via a home's WiFi network, many IoT devices are out of range of existing wired or WiFi networks. Cellular and satellite networks have excellent coverage, but are costly in terms of airtime fees and power. The Internet of Things demands an outdoor, long-range, and low-power data network solution.
 
-Recent developments in [LoRaWAN](https://www.lora-alliance.org/) radio technology allows low-power sensors to connect to distant gateways which then connect to a network server. Several competing commercial LoRaWAN providers now exist, and companies can build out there own networks of gateways. However, the proliferation of different LoRaWAN networks in the same geographical area is a waste of resources and may cause crowding of the radio spectrum. Furthermore, commercial LoRaWAN providers charge for access to their networks just as with cellular and satellite.
+Recent developments in [LoRaWAN](https://www.lora-alliance.org/) radio technology allows low-power sensors to connect to distant internet gateways over free-to-use radio spectrum. Several competing commercial LoRaWAN providers now exist, or companies can build their own networks of gateways. However, the proliferation of different LoRaWAN networks in the same geographical area wastes resources and may cause crowding of the radio spectrum. Furthermore, commercial LoRaWAN providers charge for access to their networks just as with cellular and satellite.
 
-The [TheThingsNetwork](http://thethingsnetwork.org/) (TTN) is an open-source data network owned and operated by its users. Anyone is free to setup a gateway, and anyone is free to use those gateways at no charge. All source code for the network software is [developed in the open on GitHub](https://github.com/TheThingsNetwork) to harness the strengths of developers world-wide. TTN is currently in 50+ cities and is growing rapidly through the efforts of local communities.
+The [TheThingsNetwork](http://thethingsnetwork.org/) (TTN) is an open-source data network owned and operated by its users built on top of LoRaWAN. Anyone is free to setup a gateway, and anyone may use those gateways at no charge. All source code for the network software is [developed in the open on GitHub](https://github.com/TheThingsNetwork) to harness the strengths of developers world-wide. TTN is currently in 50+ cities and is growing rapidly through the efforts of local communities.
 
-In this tutorial, we will cover how to connect a device via TheThingsNetwork to Scriptr for analysis. We cover step-by-step how to connect a LoRa radio to a Raspberry Pi single-board computer. Also, as you may not have a gateway in range yet, we also cover configuring a gateway for TTN. We then show how with just a few lines of code, you can get ThingsNetwork data into Scriptr for analysis.
+In this tutorial, we will cover how to connect a device via TheThingsNetwork to Scriptr. We cover step-by-step how to connect a LoRa radio to a Raspberry Pi single-board computer. Also, as you may not have a gateway in range yet, we also cover gateway setup. We then show how with just a few lines of code, you can get TheThingsNetwork data into Scriptr.
 
 ## Overview
 
@@ -50,15 +50,15 @@ Now try running the `lora_mote_send.py` script with no arguments. You should get
 
 ### Attach Microchip LoRaMOTE
 
-The Microchip LoRaMOTE is a development board for Microchip's RN2903 (or RN2483 in Europe) LoRaWAN tranceiver module. Many other development boards and tranceivers are available, however the RN2903 is one of the easiest to use. In addition to the RN2903 tranceiver, the LoRaMOTE has a built in PIC microcontroller, temperature and light sensors, AAA battery pack, and USB port. The LoRaMOTE comes with a USB cable and detachable antenna.
+The Microchip LoRaMOTE is a development board for Microchip's RN2903 (or RN2483 in Europe) LoRaWAN tranceiver module. Many other development boards and tranceivers are available, however the RN2903 is one of the easiest to use. In addition to the RN2903 tranceiver, the LoRaMOTE has a built in PIC microcontroller, temperature and light sensors, AAA battery pack, and USB port. In this tutorial we will not use the sensors, but simply pass data through from the Raspberry Pi to a gateway.
 
 ![photo of loramote](lora_mote.jpg)
 
-When you plug in the LoRaMOTE to the Raspberry Pi, Linux will create a serial port device in its file system for communicating with the Mote. To tell the name of that serial device, you will want to first clear the device message log by running the following command at the Raspberry Pi's bash prompt:
+When you plug in the LoRaMOTE to the Raspberry Pi, Raspbian Linux will create a serial port device in its file system for communicating with the Mote. To tell the name of that serial device, you will want to first clear the device message log by running the following command at the Raspberry Pi's bash prompt:
 
     sudo dmesg -c
 
-Next plug in the LoRaMOTE to the Pi using the provided USB mini-B cable. Now again run the `dmesg` command. You should see a number of messages in the console like this:
+Next, plug in the LoRaMOTE to the Pi using the provided USB mini-B cable. Now again run the `dmesg` command. You should see a number of messages in the console like this:
 
     [198997.954943] usb 1-1.1: new full-speed USB device number 13 using xhci_hcd
     [198998.062393] usb 1-1.1: New USB device found, idVendor=04d8, idProduct=000a
@@ -92,7 +92,7 @@ First you will need to assemble the gateway:
 1. Install the LoRa mCard into the Conduit's AP1 slot.
 2. Attach the 915MHz antenna to the LoRa mCard's RF port.
 3. Attach the cellular antenna to the Conduit's CELL port.
-4. Power the Conduit by pluggin in the provided AC-DC converter.
+4. Power the Conduit by plugging in the provided AC-DC converter.
 
 ### Logging into the Gateway
 
@@ -296,12 +296,6 @@ Do be aware that this setup uses a common session key,
 * [TheThingsNetwork WiKi](http://thethingsnetwork.org/wiki/)
 * [LoRaWAN specification](https://www.lora-alliance.org/Contact/Request-Specification-Form)
 * [MQTT protocol specification](http://mqtt.org/documentation)
-
-## TODO
-
-* update with proper Scriptr MQTT syntax available
-* update based on Scriptr feedback
-* move github repos to scriptrdotio rather than chrismerck account
 
 
 
