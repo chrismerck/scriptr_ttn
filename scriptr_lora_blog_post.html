@@ -1,8 +1,24 @@
-<h1 id="test">test</h1>
-<h2 id="test-1">test</h2>
-<ul>
-<li>hello</li>
-<li>1</li>
-<li>2</li>
-<li>3</li>
-</ul>
+<h1 id="thethingsnetwork-meets-scriptr">TheThingsNetwork meets scriptr;</h1>
+<p>intro</p>
+<h2 id="overview">Overview</h2>
+<p>block diagram</p>
+<p>hardware required</p>
+<h2 id="raspberry-pi">Raspberry Pi</h2>
+<p>login to raspberry pi (ssh, console, or keyboard+monitor)</p>
+<p>sudo apt-get install git cd mkdir src cd src git clone X cd X</p>
+<p>dmesg -c connect loramote dmesg -c note serial device python send_packet.py serial data</p>
+<p>note: for now this uses a common session key, which means that although packets are encrypted over the air, the packets can be easily decrypted because the encryption key is published. if you run your own ttn handler you can specify your own session key to achieve encryption over-the-air and on-the-wire.</p>
+<h2 id="gateway">Gateway</h2>
+<p>check &amp; update firmware</p>
+<p>install poly packet forwarder</p>
+<p>download default config, add UID, config for subband 7</p>
+<p>test that packets are forwarding with tail -f log look for number of packets received with good CRC &gt; 0</p>
+<p>next test by using mosquitto_sub directly to public ttn handler note: this will be replaced in a few months with a new URL</p>
+<h2 id="scriptr">Scriptr</h2>
+<p>we will write a scriptr script to subscribe to packets from our gateway and nodes on TTN.</p>
+<p>once packets are received, we unpack the data</p>
+<p>can test by return values (?) -- we need mqtt packets to trigger a script running, not an HTTP request...</p>
+<p>now we push it to InitialState for visualization</p>
+<h2 id="initialstate">InitialState</h2>
+<p>ed todo</p>
+<p>nice screen cap</p>
