@@ -250,10 +250,6 @@ Log in to your cloud VM, which we will assume runs Ubuntu Linux. First we instal
     sudo apt-get install nodejs
     sudo apt-get install npm
 
-Next we install the [node.js MQTT client](https://www.npmjs.com/package/mqtt#install) package:
-
-    npm install mqtt --save
-
 Now we create a directory for our project and enter it:
 
     mkdir -p ~/src/mqtt2scriptr
