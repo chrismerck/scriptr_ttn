@@ -161,7 +161,7 @@ And with DNS:
 
 ### Install Packet Forwarder
 
-Next we will need to install a program called a "packet forwarder", which forwards all packets recieved over the air and pushes them up to a network server on the internet. Run the following command to download Kersing's `poly-packet-forwarder`:
+Next we will need to install a program called a "packet forwarder", which forwards all packets received over the air and pushes them up to a network server on the internet. Run the following command to download Kersing's `poly-packet-forwarder`:
 
     wget --no-check-certificate https://github.com/kersing/packet_forwarder/blob/master/multitech-bin/poly-packet-forwarder_2.1-r2_arm926ejste.ipk?raw=true
 
@@ -183,7 +183,7 @@ And now edit your local configuration using `vi` or your preferred editor:
 
     vi /var/config/lora/local_conf.json
 
-Be sure to set your `gateway_ID` to a unique 64-bit number and set the `contact_email` and `description` fields. You should also put the latitude, longitude, and altitude (in meters) of the the gateway in the `ref_latitude`, `ref_longitude`, and `ref_altitude` fields, so that other TTN users can see where your gateway is located.
+Be sure to set your `gateway_ID` to a unique 64-bit number and set the `contact_email` and `description` fields. You should also put the latitude, longitude, and altitude (in meters) of the gateway in the `ref_latitude`, `ref_longitude`, and `ref_altitude` fields, so that other TTN users can see where your gateway is located.
 
 ### Start the Packet Forwarder
 
@@ -240,38 +240,126 @@ You can also subscribe to status messages from your gateway:
 
 Where you should replace `008000000000ABFF` with the gateway EUI you specified in `local_config.json` on the Conduit.
 
-## Scriptr
+## MQTT to REST Bridge
 
-Now that you have data from your Raspberry Pi pushing to TheThingsNetwork, 
-we will write a Scriptr script to subscribe to packets from our gateway and nodes on TTN.
+We now need to get data from TheThingsNetwork MQTT broker into an HTTP POST request to Scriptr. We will make a quick-and-dirty MQTT-REST bridge in node.js which you can run on any cloud VM or even a desktop behind a firewall. This bridge can be elimated when MQTT support comes to Scriptr.
 
-### MQTT Subscription
+Log in to your cloud VM, which we will assume runs Ubuntu Linux. First we install node.js:
 
-**NOTE**: This section will need to be adapted based on the syntax of the upcoming MQTT support in Scriptr.
+    sudo apt-get update
+    sudo apt-get install nodejs
+    sudo apt-get install npm
 
-Create a new script in your workspace called `ttn_demo`. We will write a few lines of Javascript to connect to TheThingsNetwork MQTT broker to receive packets for our node.
+Next we install the [node.js MQTT client](https://www.npmjs.com/package/mqtt#install) package:
 
-Start by creating an `mqtt` client object and connecting to TTN:
+    npm install mqtt --save
+
+Now we create a directory for our project and enter it:
+
+    mkdir -p ~/src/mqtt2scriptr
+    cd ~/src/mqtt2scriptr
+
+Now initialize a node.js project here:
+
+    npm init
+
+Hit Enter to accept each of the defaults. Now install MQTT package:
+
+    npm i --save mqtt
+
+Now let's write some code to push packets from our nodes to Scriptr. Create a new js file in your mqtt2scriptr directory, call it `mqtt2scriptr.js` and add the following:
 
     /* mqtt init */ 
     var mqtt    = require('mqtt');
     var mqtt_client  = mqtt.connect('mqtt://croft.thethings.girovito.nl');
 
-Next we subscribe to the MQTT "topics" corresponding to our node's ID:
+This establishes a connection to TheThingsNetwork MQTT broker. Next add:
+
+    /* http init */ 
+    var https = require('https');
+    var options = {
+      host: 'api.scriptrapps.io',
+      path: '/ttn_test',
+      method: 'POST',
+      headers: {
+        Authorization: "bearer TTUyMXg1MjNCMXpzY3JpcHRyOjhCNDX0NTVERkYwNjhEMDQXQkNBMDQwNUVGXjg3MTFG"
+      },
+    };
+
+This sets up the parameters of the HTTPS connection to Scritpr. You will need to change the bearer token with your token specific to your account, which we will do in the next section. Next, add a callback to display data returned by Scriptr. This is helpful for debugging:
+
+    /* display data returned from REST service */
+    rest_callback = function(response) {
+      var str = ''
+      response.on('data', function (chunk) {
+        str += chunk;
+      });
+    
+      response.on('end', function () {
+        console.log(str);
+      });
+    }
+
+Now we tell the MQTT client to subscribe to packets from our node:
 
     /* subscribe to some topics */
     mqtt_client.on('connect', function () {
       mqtt_client.subscribe('nodes/DEADBEEF/packets');
-      /* additional nodes may be specified here */
     });
 
+You can add more nodes by adding additional `mqtt_client.subscribe()` calls. Finally, we add a hook to push any packets received from MQTT out to Scriptr over HTTPS:
 
     /* forward MQTT packets to REST */
     mqtt_client.on('message', function (topic, message) {
       console.log("MQTT Received Packet from TTN: ",message.toString());
+      console.log("Pushing to REST API... ");
+      var req = https.request(options, rest_callback);
+      req.write(JSON.stringify({topic: topic, message: message.toString()}))
+      req.end();
     });
 
-When you run the script and generate some packets from your node, you should see the JSON packets dumped to the Scriptr console.
+Now save this file, and test it by running:
+
+    node mqtt2scriptr.js
+
+Now try sending a packet from your LoRaMOTE. Since you have not set up a Scriptr script yet, you should see an error response from scriptr.io:
+
+    Pushing to REST API... 
+    {"response": {
+      "metadata": {
+        "requestId": "1a34d45b-7872-4b70-be0f-2f2100d3a420",
+        "status": "failure",
+        "errorCode": "SCRIPT_NOT_FOUND",
+        "errorDetail": "",
+        "statusCode": "404"
+      }
+    }}
+
+Now we have only to setup the Scriptr side.
+
+## Scriptr
+
+Finally we will create a script on the Scriptr side which will take TTN packets and decode them. After that you can do whatever you want with the data.
+
+Start by forking [an example project on GitHub](https://github.com/chrismerck/scriptr). After forking, the project is available at your github account. We will now setup Scriptr to sync that repo into your Scriptr workspace. Open your Scriptr account, click on your username, and select settings. Then setup the GitHub tab to look as follows:
+
+![github_sync](github_sync.png)
+
+Just be sure to replace `myself` with your username. Now click the Synchronize tab, and click the Cloud icon to sync the github repo to your workspace. You should now have a script called `ttn_test`.
+
+Finally, you will need to get your access token. Click again on your username in Scriptr workspace, then on Account. Now your access token is displayed. Copy that string, and replace the `Authentication: "bearer xxxx"` line in `mqtt2scriptr.js`.
+
+Now restart your node.js `mqtt2scriptr.js` application, and watch its console as you send some packets from the Raspberry Pi. If you send a packet like this from the Pi:
+
+    python lora_mote_send.py /dev/ttyACM0 DEADBEEF AABBCCDDEEFFAA
+
+You should see a response from Scriptr with the data decoded into hex in the node.js terminal:
+
+![data_recv](data_recv.png)
+
+You can now add any processing, analysis, or visualization code to Scriptr in the marked section:
+
+![scriptr code snipit](scriptr.png)
 
 ## What's Next?
 
@@ -287,11 +375,6 @@ Do be aware that this setup uses a common session key,
 
 * [TheThingsNetwork WiKi](http://thethingsnetwork.org/wiki/)
 * [LoRaWAN specification](https://www.lora-alliance.org/Contact/Request-Specification-Form)
+* [MQTT node.js package docs](https://www.npmjs.com/package/mqtt)
 * [MQTT protocol specification](http://mqtt.org/documentation)
-
-
-
-
-
-
 
